@@ -26,24 +26,18 @@ def compute_variance(x):
     return round(variance, ROUND_BY)
 
 
-def compute_covariance(x,y):
-    len_x = x.count()
-    len_y = y.count()
-    length = len_x
-    # one could have more data than the other so use the smallest
-    if(len_x > len_y ):
-        length = len_y 
+def compute_covariance(x, y):
+    # Drop any rows where either is NaN so they stay aligned
+    valid = pd.concat([x, y], axis=1).dropna()
+    mean_x = compute_mean(valid.iloc[:, 0])
+    mean_y = compute_mean(valid.iloc[:, 1])
     
-    mean_x =compute_mean(x)
-    mean_y = compute_mean(y) 
-    sum = 0
+    diff_x = valid.iloc[:, 0] - mean_x
+    diff_y = valid.iloc[:, 1] - mean_y
     
-    for i in range(length): 
-        if not math.isnan(x[i]) and not math.isnan(y[i]):
-            sum = sum + (x[i] - mean_x + y[i] -mean_y)
-    
-    covarance = sum / (length -1)
-    return round(covarance, ROUND_BY)
+    cov = (diff_x * diff_y).sum() / (len(valid) - 1)
+    return round(cov, ROUND_BY)
+
  
 def print_covariance_matrix(x,y,z):
      cov_matrix = [ [compute_variance(x),compute_covariance(x,y),compute_covariance(x,z)],
@@ -101,11 +95,12 @@ def plot_histograms(df):
         ax.set_xlabel('Value')
         ax.set_ylabel('Frequency')
     plt.tight_layout()
- 
+
+
 
 def main(): 
     
-    df = pd.read_csv('./data/slo_temp_test.csv')
+    df = pd.read_csv('./data/SM_temp_test.csv')
     df['DATE'] = pd.to_datetime(df['DATE'])
     df.set_index('DATE',inplace=True) # To use the Date as the X axis
     plot_temp_time_series_data(df)
