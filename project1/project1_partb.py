@@ -63,8 +63,30 @@ def plot_time_prcp(df):
     plt.title("Precipitation vs Time")
     plt.legend()
 
+def scatter_plot(df1, df2):
+    fig, axes = plt.subplots(figsize=(10, 6))
 
+    axes.scatter(df1.index, df1['TAVG'], color='blue', label='SANTA MARIA PUBLIC AIRPORT, CA US ')
+    axes.scatter(df2.index, df2['TAVG'], color='red', marker='^', label='ABERDEEN REGIONAL AIRPORT, SOUTH DAKOTA')
     
+    axes.set_xlabel('Date')
+    axes.set_ylabel('Temperature')
+    axes.set_title('TAVG Date Scatter Plot')
+    axes.legend()
+    # x is now plots the earliest and latest dates # our data sets dont have the same amt of data
+    axes.set_xlim(min(df1.index.min(), df2.index.min()), max(df1.index.max(), df2.index.max()))
+   
+    # plot 2
+    fig, axes = plt.subplots(figsize=(10, 6))
+    axes.scatter(df1.index, df1['PRCP'], color='blue', label='SANTA MARIA PUBLIC AIRPORT, CA US ')
+    axes.scatter(df2.index, df2['PRCP'], color='red', marker='^', label='ABERDEEN REGIONAL AIRPORT, SOUTH DAKOTA')
+    
+    axes.set_xlabel('Date')
+    axes.set_ylabel('Precipitation')
+    axes.set_title('Precipitation Date Scatter Plot')
+    axes.legend()
+    axes.set_xlim(min(df1.index.min(), df2.index.min()), max(df1.index.max(), df2.index.max()))
+    plt.show()
 def plot_histograms(df): 
     
     tmin_mean = compute_mean(df['TMIN'])
@@ -83,9 +105,6 @@ def plot_histograms(df):
     df['TMAX'].hist(ax=axes[1], bins=20)
     df['TAVG'].hist(ax=axes[2], bins=20)
     df['PRCP'].hist(ax=axes[3], bins=20)
-    
-  
-    
     axes[0].set_title(fr'Histogram of TMIN $\sigma^2 = {tmin_variance}$, $\mu = {tmin_mean}$')
     axes[1].set_title(fr'Histogram of TMAX $\sigma^2 = {tmax_variance}$, $\mu = {tmax_mean}$')
     axes[2].set_title(fr'Histogram of TAVG $\sigma^2 = {tavg_variance}$, $\mu = {tavg_mean}$')
@@ -101,11 +120,15 @@ def plot_histograms(df):
 def main(): 
     
     df = pd.read_csv('./data/SM_temp_test.csv')
+    df2 = pd.read_csv('./data/SD_temp_test.csv')
     df['DATE'] = pd.to_datetime(df['DATE'])
     df.set_index('DATE',inplace=True) # To use the Date as the X axis
+    df2['DATE'] = pd.to_datetime(df2['DATE'])
+    df2.set_index('DATE',inplace=True) # To use the Date as the X axis   
     plot_temp_time_series_data(df)
     plot_time_prcp(df)
     plot_histograms(df)
     print_covariance_matrix(df['TMAX'],df['TAVG'],df['PRCP'])
+    scatter_plot(df,df2)
     plt.show()   
 main()
